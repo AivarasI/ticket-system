@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Category;
+use Illuminate\Support\Facades\Auth;
 
 use App\Models\Ticket;
 
@@ -64,17 +65,44 @@ class TicketController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Ticket $ticket)
     {
-        //
+            // Tik ticket savininkas arba admin gali redaguoti
+   if(Auth::id() !== $ticket->user_id && Auth::user()->role !== 'admin') {
+        abort(403, 'Unauthorized');
+    }
+
+    $categories = Category::all();
+    $statuses = ['new', 'in_progress', 'done'];
+
+    return view('tickets.edit', compact('ticket', 'categories', 'statuses'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Ticket $ticket)
     {
-        //
+            // Tik ticket savininkas arba admin gali atnaujinti
+   if (Auth::id() !== $ticket->user_id && Auth::user()->role !== 'admin') {
+        abort(403, 'Unauthorized');
+    }
+
+    $request->validate([
+        'title' => 'required',
+        'description' => 'required',
+        'category_id' => 'required|exists:categories,id',
+        'status' => 'required|in:new,in_progress,done',
+    ]);
+
+    $ticket->update([
+        'title' => $request->title,
+        'description' => $request->description,
+        'category_id' => $request->category_id,
+        'status' => $request->status,
+    ]);
+
+    return redirect()->route('tickets.index');
     }
 
     /**

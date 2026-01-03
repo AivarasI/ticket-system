@@ -20,6 +20,11 @@
                     <td>{{ $ticket->title }}</td>
                     <td>{{ $ticket->category->name }}</td>
                     <td>{{ $ticket->status }}</td>
+                    <td>
+                    <a href="{{ route('tickets.edit', $ticket->id) }}" class="text-blue-500">
+                            Edit
+                        </a>
+                    </td>
                 </tr>
             @endforeach
         </table>

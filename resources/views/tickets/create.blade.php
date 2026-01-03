@@ -28,7 +28,7 @@
                 </select>
             </div>
 
-            <button class="mt-4 bg-blue-500 text-white px-4 py-2">
+            <button class="mt-4 bg-blue-500 text-black px-4 py-2">
                 Save
             </button>
         </form>
