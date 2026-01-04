@@ -22,11 +22,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+        Route::get('/tickets/pdf', [TicketController::class, 'exportPdf'])->name('tickets.pdf')
+    ->middleware('auth');
+
     Route::resource('tickets', TicketController::class);
     Route::post('tickets/{ticket}/comments', [CommentController::class, 'store'])
     ->name('tickets.comments.store')->middleware('auth');
-    Route::get('/tickets/pdf', [TicketController::class, 'exportPdf'])->name('tickets.pdf')
-    ->middleware('auth');
 
 });
 
