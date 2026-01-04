@@ -43,6 +43,12 @@
             <button class="mt-4 bg-blue-500 text-black px-4 py-2">
                 Update
             </button>
+
+            <form action="{{ route('tickets.destroy', $ticket->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this ticket?');" class="inline">
+    @csrf
+    @method('DELETE')
+    <button type="submit" class="text-red-500">Delete ticket</button>
+</form>
         </form>
 
     <hr class="my-6">

@@ -8,6 +8,7 @@ use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TicketStatusChanged;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 use App\Models\Ticket;
 
@@ -24,7 +25,7 @@ class TicketController extends Controller
         $tickets = Ticket::with('category')->get();
     } else {
             $tickets = Ticket::with('category')
-        ->where('user_id', $user->id())
+        ->where('user_id', $user->id)
         ->get();
     }
 
@@ -124,6 +125,31 @@ class TicketController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+    $ticket = Ticket::findOrFail($id);
+    $ticket->delete();
+    return redirect()->route('tickets.index')
+    ->with('success', 'Ticket deleted successfully.');
     }
+
+public function exportPdf()
+{
+    $user = Auth::user();
+
+    $tickets = Ticket::with('category', 'user')
+        ->when($user->role === 'user', function($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })
+        ->get();
+
+    if ($tickets->isEmpty()) {
+        abort(404, 'No tickets found for PDF report.');
+    }
+
+    $pdf = Pdf::loadView('tickets.pdf', compact('tickets'));
+
+    return $pdf->download('tickets_report.pdf');
+}
+
+
+
 }

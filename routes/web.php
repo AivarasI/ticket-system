@@ -8,8 +8,10 @@ use App\Http\Controllers\CommentController;
 use App\Models\Ticket;
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    $tickets = Ticket::all();
+    return view('tickets.index', compact('tickets'));
+})->middleware(['auth']);
+
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -23,6 +25,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('tickets', TicketController::class);
     Route::post('tickets/{ticket}/comments', [CommentController::class, 'store'])
     ->name('tickets.comments.store')->middleware('auth');
+    Route::get('/tickets/pdf', [TicketController::class, 'exportPdf'])->name('tickets.pdf')
+    ->middleware('auth');
+
 });
 
 require __DIR__.'/auth.php';
