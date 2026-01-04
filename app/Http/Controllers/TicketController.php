@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TicketStatusChanged;
 
 use App\Models\Ticket;
 
@@ -15,10 +17,16 @@ class TicketController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
+    {   
+        $user = auth()->user();
+
+    if ($user->isAdmin()) {
+        $tickets = Ticket::with('category')->get();
+    } else {
             $tickets = Ticket::with('category')
-        ->where('user_id', auth()->id())
+        ->where('user_id', $user->id())
         ->get();
+    }
 
     return view('tickets.index', compact('tickets'));
     }
@@ -88,6 +96,8 @@ class TicketController extends Controller
         abort(403, 'Unauthorized');
     }
 
+    $oldStatus = $ticket->status;
+
     $request->validate([
         'title' => 'required',
         'description' => 'required',
@@ -101,6 +111,10 @@ class TicketController extends Controller
         'category_id' => $request->category_id,
         'status' => $request->status,
     ]);
+
+        if ($oldStatus !== $ticket->status) {
+        Mail::to($ticket->user->email)->send(new TicketStatusChanged($ticket));
+    }
 
     return redirect()->route('tickets.index');
     }

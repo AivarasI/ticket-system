@@ -66,5 +66,20 @@
     </form>
 
     </div>
+
+
+    @if(auth()->user()->isAdmin())
+    <div class="mt-4">
+        <label>Status</label>
+        <select name="status" class="border w-full">
+            @foreach($statuses as $status)
+                <option value="{{ $status }}"
+                    @selected($ticket->status === $status)>
+                    {{ ucfirst(str_replace('_', ' ', $status)) }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+@endif
    
 </x-app-layout>
